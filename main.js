@@ -37,9 +37,9 @@ function createWindow() {
   win.loadFile('index.html');
 
   // Start KataGo GTP process
-  let isKatago = true;
-  engine = spawn(KATAGO_PATH, ['gtp', '-model', KATAGO_NET, '-config', KATAGO_CONFIG]);
-  //engine = spawn('/home/cmk/ongoing/minigo/minigo.sh');
+  let isKatago = false;
+  //engine = spawn(KATAGO_PATH, ['gtp', '-model', KATAGO_NET, '-config', KATAGO_CONFIG]);
+  engine = spawn('/home/cmk/ongoing/minigo/minigo.sh');
 
   var infoLines = 0;
   engine.stdout.on('data', (data) => {
@@ -55,10 +55,6 @@ function createWindow() {
       }
     }
     win.webContents.send('gtp-output', response);
-  });
-
-  engine.stderr.on('data', (data) => {
-    win.webContents.send('gtp-output', data.toString());
   });
 
   ipcMain.on('send-command', (event, command) => {
