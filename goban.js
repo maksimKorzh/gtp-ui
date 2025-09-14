@@ -13,7 +13,6 @@ var side = BLACK;
 var liberties = [];
 var block = [];
 var ko = EMPTY;
-var bestMove = EMPTY;
 var userMove = EMPTY;
 var moveCount = EMPTY;
 var level = 1;
@@ -27,7 +26,6 @@ function clearBoard() {
   block = [];
   side = BLACK;
   ko = EMPTY;
-  bestMove = EMPTY;
   userMove = EMPTY;
   moveCount = EMPTY;
   level = 1;

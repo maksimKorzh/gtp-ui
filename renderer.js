@@ -77,6 +77,26 @@ function userInput(event) {
   drawBoard();
 }
 
+function idxToSgf(sq) {
+  let col = (sq % 21)-1;
+  let row = (Math.floor(sq / 21))-1;
+  return 'abcdefghijklmnopqrs'[col] + 'abcdefghijklmnopqrs'[row];
+}
+
+async function downloadSgf() {
+  let content = '(;FF[4]CA[UTF-8]AP[GTP_UI]\nKM[6.5]\nPB[black]\nPW[white]\n';
+  for (let pos of moveHistory) {
+    if (!pos.ply) continue;
+    let move = ';' + (pos.side == BLACK ? 'B': 'W') + '[' + idxToSgf(pos.move) + ']';
+    content += move;
+  }
+  content += ')';
+  console.log(content);
+  const success = await window.gtpAPI.saveFile(content);
+  if (success) alert('File saved');
+  else alert('Failed to save file!');
+}
+
 async function uploadSgf() {
   const fileContent = await window.gtpAPI.openFile();
   if (fileContent) {
@@ -101,9 +121,6 @@ function loadSgf(sgf) {
   firstMove();
 }
 
-function downloadSgf() {
-}
-
 function resizeCanvas() {
   canvas.width = window.innerHeight-90;
   canvas.height = canvas.width;
@@ -111,13 +128,9 @@ function resizeCanvas() {
   drawBoard();
 }
 
-function handleSave() {
-  if (gameOver) downloadSgf();
-  else {
-    editMode = 0;
-    handlePass();
-    downloadSgf();
-  }
+function newGame() {
+  initGoban();
+  drawBoard();
 }
 
 function initGUI() {
@@ -133,14 +146,14 @@ function initGUI() {
   document.getElementById('controls').innerHTML = `
     <div id="navigation" style="display: flex; padding-left: 5px; gap: 4px;">                               
       <button id="first" onclick="firstMove();"><<<</button id="" disabled="true">
-      <button id="prevfew" onclick="prevFewMoves();"><<</button id="" disabled="true">
-      <button onclick="prevMove();">UNDO</button id="" disabled="true">
+      <button id="prevfew" onclick="prevFewMoves(10);"><<</button id="" disabled="true">
+      <button onclick="prevMove();"><</button id="" disabled="true">
       <button onclick="uploadSgf();">LOAD</button id="" disabled="true">
       <button onclick="analyze();">MOVE</button id="" disabled="true">
       <button onclick="newGame();">DROP</button id="" disabled="true">
-      <button onclick="download();">SAVE</button id="" disabled="true">
-      <button id="next" onclick="nextMove();">NEXT</button id="" disabled="true">
-      <button id="nextfew" onclick="nextFewMoves();">>></button id="" disabled="true">
+      <button onclick="downloadSgf();">SAVE</button id="" disabled="true">
+      <button id="next" onclick="nextMove();">></button id="" disabled="true">
+      <button id="nextfew" onclick="nextFewMoves(10);">>></button id="" disabled="true">
       <button id="last" onclick="lastMove();">>>></button id="" disabled="true">
     </div>
   `;

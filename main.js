@@ -79,6 +79,16 @@ function createWindow() {
     const content = fs.readFileSync(filePaths[0], 'utf-8');
     return content;
   });
+  
+  ipcMain.handle('dialog:saveFile', async (event, content) => {
+    const { canceled, filePath } = await dialog.showSaveDialog({
+      filters: [{ name: 'SGF Files', extensions: ['sgf'] }],
+      defaultPath: 'game.sgf'
+    });
+    if (canceled || !filePath) return false;
+    fs.writeFileSync(filePath, content, 'utf-8');
+    return true;
+  });
 
   win.on('closed', () => {
     if (katago) katago.kill();
