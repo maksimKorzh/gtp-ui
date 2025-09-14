@@ -159,6 +159,7 @@ function loadHistoryMove() {
   side = move.side;
   ko = move.ko;
   userMove = move.move;
+  syncBoard();
   drawBoard();
 }
 

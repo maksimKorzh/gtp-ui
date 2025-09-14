@@ -8,7 +8,7 @@ const KATAGO_PATH = '/home/cmk/katago/katago';
 const KATAGO_NET = '/home/cmk/katago/kata1-b10c128.txt.gz';
 const KATAGO_CONFIG = '/home/cmk/katago/gtp.cfg';
 
-let katago;
+let engine;
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -37,33 +37,33 @@ function createWindow() {
   win.loadFile('index.html');
 
   // Start KataGo GTP process
-  //katago = spawn(KATAGO_PATH, ['gtp', '-model', KATAGO_NET, '-config', KATAGO_CONFIG]);
-  katago = spawn('/home/cmk/ongoing/minigo/minigo.sh');
+  let isKatago = true;
+  engine = spawn(KATAGO_PATH, ['gtp', '-model', KATAGO_NET, '-config', KATAGO_CONFIG]);
+  //engine = spawn('/home/cmk/ongoing/minigo/minigo.sh');
 
   var infoLines = 0;
-  katago.stdout.on('data', (data) => {
-    console.log(data.toString())
+  engine.stdout.on('data', (data) => {
     let response = data.toString();
-//    if (response.includes('info move')) {
-//      infoLines++;
-//      if (infoLines <= 100) {
-//        if (infoLines == 100) {
-//          infoLines = 0;
-//          response = response.replaceAll(' info move', '\ninfo move') + '\n';
-//          if (!response.includes('info move')) return;
-//        } else return;
-//      }
-//    }
-    win.webContents.send('katago-output', response);
+    if (isKatago && response.includes('info move')) {
+      infoLines++;
+      if (infoLines <= 100) {
+        if (infoLines == 100) {
+          infoLines = 0;
+          response = response.replaceAll(' info move', '\ninfo move') + '\n';
+          if (!response.includes('info move')) return;
+        } else return;
+      }
+    }
+    win.webContents.send('gtp-output', response);
   });
 
-  katago.stderr.on('data', (data) => {
-    win.webContents.send('katago-output', data.toString());
+  engine.stderr.on('data', (data) => {
+    win.webContents.send('gtp-output', data.toString());
   });
 
   ipcMain.on('send-command', (event, command) => {
-    if (katago && katago.stdin.writable) {
-      katago.stdin.write(command + '\n');
+    if (engine && engine.stdin.writable) {
+      engine.stdin.write(command + '\n');
     }
   });
 
@@ -91,7 +91,7 @@ function createWindow() {
   });
 
   win.on('closed', () => {
-    if (katago) katago.kill();
+    if (engine) engine.kill();
   });
 }
 

@@ -1,5 +1,6 @@
 var canvas, ctx, cell;
 var gameOver = 1;
+var ponder = 0;
 
 const bgImage = new Image();
 const blackStoneImage = new Image();
@@ -8,6 +9,49 @@ const moveSound = new Audio('./assets/112-2052.wav');
 bgImage.src = './assets/board_fox.png';
 blackStoneImage.src = './assets/stone_b_fox.png';
 whiteStoneImage.src = './assets/stone_w_fox.png';
+
+window.gtpAPI.onOutput((data) => {
+  // Analyze
+  if (data.includes('move')) {
+    drawBoard();
+    let oldVisits = 0;
+    let oldWinrate = 0;
+    let blueMove = 0;
+    data.split('info').forEach((i) => {
+      try {
+        if (blueMove) {
+          blueMove = 0;
+          return;
+        }
+        let move = i.split('move ')[1].split(' ')[0];
+        let col = 'ABCDEFGHJKLMNOPQRST'.indexOf(move[0]);
+        let row = 19-parseInt(move.slice(1));
+        winrate = Math.floor(parseFloat(i.split('winrate ')[1].split(' ')[0]) * 100);
+        visits = i.split('visits ')[1].split(' ')[0];
+        if (visits < 10) return;
+        ctx.beginPath();
+        ctx.arc(col * cell + cell / 2, row * cell + cell / 2, cell / 2 - 2, 0, 2 * Math.PI);
+        ctx.fillStyle = 'lightgreen';
+        if (winrate > oldWinrate) {
+          blueMove = 1;
+          oldWinrate = winrate;
+          ctx.fillStyle = 'cyan';
+        }
+        else if (visits > oldVisits) oldVisits = visits;
+        else if (oldVisits > visits && oldWinrate > winrate) ctx.fillStyle = 'orange';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.lineWidth = 1;
+        ctx.fillStyle = 'black';
+        ctx.font = cell / 3 + 'px Monospace';
+        let xOffset = Math.abs(winrate) < 10 ? 4 : 0;
+        ctx.fillText(winrate + '%', col * cell + cell / 5 + xOffset, row * cell + cell / 2 + 4);
+        ctx.font = cell / 4 + 'px Monospace';
+      } catch {}
+    });
+  }
+});
 
 function drawBoard() {
   cell = canvas.width / (size-2);
@@ -74,6 +118,7 @@ function userInput(event) {
   let row = Math.floor(mouseY / cell);
   let sq = (row+1) * size + (col+1);
   setStone(sq, side);
+  syncBoard();
   drawBoard();
 }
 
@@ -81,6 +126,37 @@ function idxToSgf(sq) {
   let col = (sq % 21)-1;
   let row = (Math.floor(sq / 21))-1;
   return 'abcdefghijklmnopqrs'[col] + 'abcdefghijklmnopqrs'[row];
+}
+
+function idxToGtp(sq) {
+  let col = (sq % 21)-1;
+  let row = (Math.floor(sq / 21))-1;
+  return 'ABCDEFGHJKLMNOPQRST'[col] + (19-row);
+}
+
+function syncBoard() {
+  window.gtpAPI.sendCommand('clear_board');
+  for (let i = 0; i <= moveCount; i++) {
+    let pos = moveHistory[i];
+    if (!pos.ply) continue;
+    let move = idxToGtp(pos.move);
+    let side = pos.side == BLACK ? 'B': 'W';
+    window.gtpAPI.sendCommand('play ' + side + ' ' + move);
+  }
+  window.gtpAPI.sendCommand('showboard');
+  if (ponder) window.gtpAPI.sendCommand('kata-analyze 1');
+}
+
+function analyze() {
+  syncBoard();
+  ponder = 1;
+  window.gtpAPI.sendCommand('kata-analyze 1');
+}
+
+function stop() {
+  ponder = 0;
+  window.gtpAPI.sendCommand('stop');
+  drawBoard();
 }
 
 async function downloadSgf() {
@@ -128,11 +204,6 @@ function resizeCanvas() {
   drawBoard();
 }
 
-function newGame() {
-  initGoban();
-  drawBoard();
-}
-
 function initGUI() {
   let container = document.getElementById('goban');
   canvas = document.createElement('canvas');
@@ -150,7 +221,7 @@ function initGUI() {
       <button onclick="prevMove();"><</button id="" disabled="true">
       <button onclick="uploadSgf();">LOAD</button id="" disabled="true">
       <button onclick="analyze();">MOVE</button id="" disabled="true">
-      <button onclick="newGame();">DROP</button id="" disabled="true">
+      <button onclick="stop();">STOP</button id="" disabled="true">
       <button onclick="downloadSgf();">SAVE</button id="" disabled="true">
       <button id="next" onclick="nextMove();">></button id="" disabled="true">
       <button id="nextfew" onclick="nextFewMoves(10);">>></button id="" disabled="true">
