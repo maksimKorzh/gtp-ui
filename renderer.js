@@ -28,7 +28,7 @@ window.gtpAPI.onOutput((data) => {
         let row = 19-parseInt(move.slice(1));
         winrate = Math.floor(parseFloat(i.split('winrate ')[1].split(' ')[0]) * 100);
         visits = i.split('visits ')[1].split(' ')[0];
-        if (visits < 10) return;
+        if (visits < 5) return;
         ctx.beginPath();
         ctx.arc(col * cell + cell / 2, row * cell + cell / 2, cell / 2 - 2, 0, 2 * Math.PI);
         ctx.fillStyle = 'lightgreen';
