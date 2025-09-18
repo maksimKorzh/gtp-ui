@@ -21,7 +21,6 @@ window.gtpAPI.onOutput((data) => {
     let sq = (20-row) * 21 + col+1;
     setStone(sq, side);
     drawBoard();
-    console.log(move, col, row);
   }
   
   // Analyze
@@ -157,7 +156,7 @@ function syncBoard() {
     let pos = moveHistory[i];
     if (!pos.ply) continue;
     let move = idxToGtp(pos.move);
-    let side = pos.side == BLACK ? 'B': 'W';
+    let side = pos.side == BLACK ? 'W': 'B';
     window.gtpAPI.sendCommand('play ' + side + ' ' + move);
   }
   window.gtpAPI.sendCommand('showboard');
