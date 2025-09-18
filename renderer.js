@@ -160,19 +160,24 @@ function syncBoard() {
     window.gtpAPI.sendCommand('play ' + side + ' ' + move);
   }
   window.gtpAPI.sendCommand('showboard');
-  if (ponder) window.gtpAPI.sendCommand('kata-analyze 1');
+  if (ponder) window.gtpAPI.sendCommand('analyze');
 }
 
 function analyze() {
   syncBoard();
-  ponder = 1;
-  window.gtpAPI.sendCommand('kata-analyze 1');
+  ponder ^= 1;
+  if (ponder) {
+    editMode = 1;
+    window.gtpAPI.sendCommand('analyze');
+  } else {
+    window.gtpAPI.sendCommand('stop');
+    drawBoard();
+  }
 }
 
-function stop() {
-  ponder = 0;
-  window.gtpAPI.sendCommand('stop');
-  drawBoard();
+function aiMove() {
+  let color = side == BLACK ? 'B' : 'W';
+  window.gtpAPI.sendCommand('genmove ' + color);
 }
 
 async function downloadSgf() {
@@ -234,12 +239,12 @@ function initGUI() {
     <div id="navigation" style="display: flex; padding-left: 5px; gap: 4px;">                               
       <button id="first" onclick="firstMove();"><<<</button id="" disabled="true">
       <button id="prevfew" onclick="prevFewMoves(10);"><<</button id="" disabled="true">
-      <button onclick="prevMove();"><</button id="" disabled="true">
-      <button onclick="uploadSgf();">LOAD</button id="" disabled="true">
-      <button onclick="analyze();">MOVE</button id="" disabled="true">
-      <button onclick="editMode ^= 1;">EDIT</button id="" disabled="true">
-      <button onclick="stop();">STOP</button id="" disabled="true">
-      <button onclick="downloadSgf();">SAVE</button id="" disabled="true">
+      <button onclick="prevMove();"><</button>
+      <button onclick="uploadSgf();">LOAD</button>
+      <button onclick="analyze();">FIND</button>
+      <button onclick="editMode ^= 1;">EDIT</button>
+      <button onclick="aiMove();">MOVE</button>
+      <button onclick="downloadSgf();">SAVE</button>
       <button id="next" onclick="nextMove();">></button id="" disabled="true">
       <button id="nextfew" onclick="nextFewMoves(10);">>></button id="" disabled="true">
       <button id="last" onclick="lastMove();">>>></button id="" disabled="true">
