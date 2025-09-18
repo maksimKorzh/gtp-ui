@@ -1,4 +1,5 @@
 var canvas, ctx, cell;
+var editMode = 0;
 var gameOver = 1;
 var ponder = 0;
 
@@ -11,6 +12,18 @@ blackStoneImage.src = './assets/stone_b_fox.png';
 whiteStoneImage.src = './assets/stone_w_fox.png';
 
 window.gtpAPI.onOutput((data) => {
+  // Genmove
+  if (data.includes('= ') && data.length <= 7) {
+    let move = data.split('= ')[1];
+    let col = move[0].charCodeAt(0) - 'A'.charCodeAt(0);
+    if (move[0].charCodeAt(0) > 'H'.charCodeAt(0)) col--;
+    let row = parseInt(move.slice(1,));
+    let sq = (20-row) * 21 + col+1;
+    setStone(sq, side);
+    drawBoard();
+    console.log(move, col, row);
+  }
+  
   // Analyze
   if (data.includes('move')) {
     drawBoard();
@@ -120,6 +133,10 @@ function userInput(event) {
   setStone(sq, side);
   syncBoard();
   drawBoard();
+  if (!editMode) {
+    let color = side == BLACK ? 'B' : 'W';
+    window.gtpAPI.sendCommand('genmove ' + color);
+  }
 }
 
 function idxToSgf(sq) {
@@ -221,6 +238,7 @@ function initGUI() {
       <button onclick="prevMove();"><</button id="" disabled="true">
       <button onclick="uploadSgf();">LOAD</button id="" disabled="true">
       <button onclick="analyze();">MOVE</button id="" disabled="true">
+      <button onclick="editMode ^= 1;">EDIT</button id="" disabled="true">
       <button onclick="stop();">STOP</button id="" disabled="true">
       <button onclick="downloadSgf();">SAVE</button id="" disabled="true">
       <button id="next" onclick="nextMove();">></button id="" disabled="true">
