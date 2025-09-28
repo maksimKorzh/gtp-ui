@@ -168,7 +168,7 @@ function analyze() {
   ponder ^= 1;
   if (ponder) {
     editMode = 1;
-    window.gtpAPI.sendCommand('analyze');
+    window.gtpAPI.sendCommand('analyze B 1');
   } else {
     window.gtpAPI.sendCommand('stop');
     drawBoard();
@@ -241,7 +241,7 @@ function initGUI() {
       <button id="prevfew" onclick="prevFewMoves(10);"><<</button id="" disabled="true">
       <button onclick="prevMove();"><</button>
       <button onclick="uploadSgf();">LOAD</button>
-      <button onclick="analyze();">FIND</button>
+      <button onclick="analyze();">BEST</button>
       <button onclick="editMode ^= 1;">EDIT</button>
       <button onclick="aiMove();">MOVE</button>
       <button onclick="downloadSgf();">SAVE</button>
