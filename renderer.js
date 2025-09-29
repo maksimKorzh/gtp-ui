@@ -160,7 +160,7 @@ function syncBoard() {
     window.gtpAPI.sendCommand('play ' + side + ' ' + move);
   }
   window.gtpAPI.sendCommand('showboard');
-  if (ponder) window.gtpAPI.sendCommand('analyze');
+  if (ponder) window.gtpAPI.sendCommand('analyze B 1');
 }
 
 function analyze() {
