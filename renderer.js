@@ -237,8 +237,6 @@ function initGUI() {
   window.addEventListener('resize', resizeCanvas);
   document.getElementById('controls').innerHTML = `
     <div id="navigation" style="display: flex; padding-left: 5px; gap: 4px;">                               
-      <button id="first" onclick="firstMove();"><<<</button id="" disabled="true">
-      <button id="prevfew" onclick="prevFewMoves(10);"><<</button id="" disabled="true">
       <button onclick="prevMove();"><</button>
       <button onclick="uploadSgf();">LOAD</button>
       <button onclick="analyze();">BEST</button>
@@ -246,8 +244,6 @@ function initGUI() {
       <button onclick="aiMove();">MOVE</button>
       <button onclick="downloadSgf();">SAVE</button>
       <button id="next" onclick="nextMove();">></button id="" disabled="true">
-      <button id="nextfew" onclick="nextFewMoves(10);">>></button id="" disabled="true">
-      <button id="last" onclick="lastMove();">>>></button id="" disabled="true">
     </div>
   `;
   initGoban();
