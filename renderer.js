@@ -219,9 +219,9 @@ function loadSgf(sgf) {
 }
 
 function resizeCanvas() {
-  canvas.width = window.innerHeight-90;
+  canvas.width = window.innerWidth > window.innerHeight ? window.innerHeight-90 : window.innerWidth-20;
   canvas.height = canvas.width;
-  document.getElementById('navigation').style.width = window.innerHeight-90 + 'px';
+  document.getElementById('navigation').style.width = canvas.width + 'px';
   drawBoard();
 }
 
@@ -241,6 +241,7 @@ function initGUI() {
       <button onclick="uploadSgf();">LOAD</button>
       <button onclick="analyze();">BEST</button>
       <button onclick="editMode ^= 1;">EDIT</button>
+      <button onclick="window.gtpAPI.toggleFullscreen();">VIEW</button>
       <button onclick="aiMove();">MOVE</button>
       <button onclick="downloadSgf();">SAVE</button>
       <button id="next" onclick="nextMove();">></button id="" disabled="true">

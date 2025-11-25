@@ -12,6 +12,7 @@ let engine;
 
 function createWindow() {
   const win = new BrowserWindow({
+    fullscreen: true,
     autoHideMenuBar: true,
     width: 890,
     height: 950,
@@ -33,13 +34,11 @@ function createWindow() {
 
   const menu = Menu.buildFromTemplate(template);
   Menu.setApplicationMenu(menu);
-  //win.setMenu(null);
   win.loadFile('index.html');
 
   // Start KataGo GTP process
-  let isKatago = false;
-  //engine = spawn(KATAGO_PATH, ['gtp', '-model', KATAGO_NET, '-config', KATAGO_CONFIG]);
-  engine = spawn('/home/cmk/ongoing/minigo/minigo.sh');
+  let isKatago = true;
+  engine = spawn(KATAGO_PATH, ['gtp', '-model', KATAGO_NET, '-config', KATAGO_CONFIG]);
 
   var infoLines = 0;
   engine.stdout.on('data', (data) => {
@@ -55,6 +54,10 @@ function createWindow() {
       }
     }
     win.webContents.send('gtp-output', response);
+  });
+  
+  ipcMain.on('toggle-fullscreen', () => {
+    if (win) win.setFullScreen(!win.isFullScreen());
   });
 
   ipcMain.on('send-command', (event, command) => {
