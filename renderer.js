@@ -38,7 +38,7 @@ window.gtpAPI.onOutput((data) => {
         let move = i.split('move ')[1].split(' ')[0];
         let col = 'ABCDEFGHJKLMNOPQRST'.indexOf(move[0]);
         let row = 19-parseInt(move.slice(1));
-        winrate = Math.floor(parseFloat(i.split('winrate ')[1].split(' ')[0]) * 100);
+        winrate = Math.floor(parseFloat(i.split('winrate ')[1].split(' ')[0]) / 100);
         visits = i.split('visits ')[1].split(' ')[0];
         if (visits < 5) return;
         ctx.beginPath();
@@ -160,7 +160,7 @@ function syncBoard() {
     window.gtpAPI.sendCommand('play ' + side + ' ' + move);
   }
   window.gtpAPI.sendCommand('showboard');
-  if (ponder) window.gtpAPI.sendCommand('analyze B 1');
+  if (ponder) window.gtpAPI.sendCommand('lz-analyze 1');
 }
 
 function analyze() {
@@ -168,7 +168,7 @@ function analyze() {
   ponder ^= 1;
   if (ponder) {
     editMode = 1;
-    window.gtpAPI.sendCommand('analyze B 1');
+    window.gtpAPI.sendCommand('lz-analyze 1');
   } else {
     window.gtpAPI.sendCommand('stop');
     drawBoard();
@@ -188,7 +188,6 @@ async function downloadSgf() {
     content += move;
   }
   content += ')';
-  console.log(content);
   const success = await window.gtpAPI.saveFile(content);
   if (success) alert('File saved');
   else alert('Failed to save file!');
