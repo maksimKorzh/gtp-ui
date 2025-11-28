@@ -240,6 +240,7 @@ function initGUI() {
       <button onclick="uploadSgf();">LOAD</button>
       <button onclick="analyze();">BEST</button>
       <button onclick="editMode ^= 1;">EDIT</button>
+      <input id="move" type="text" spellcheck="false" style="width: 35px;"/>
       <button onclick="window.gtpAPI.toggleFullscreen();">VIEW</button>
       <button onclick="aiMove();">MOVE</button>
       <button onclick="downloadSgf();">SAVE</button>
@@ -248,4 +249,12 @@ function initGUI() {
   `;
   initGoban();
   resizeCanvas();
+  
+  document.getElementById('move').addEventListener('keypress', (e) => {
+    if (e.key == 'Enter') {
+      moveCount = parseInt(document.getElementById('move').value);
+      loadHistoryMove();
+      drawBoard();
+    }
+  });
 }
