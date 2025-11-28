@@ -119,7 +119,7 @@ function drawBoard() {
         ctx.stroke();
       }
     }
-  }
+  } document.getElementById('move').value = moveCount+1;
 }
 
 function userInput(event) {
@@ -252,7 +252,7 @@ function initGUI() {
   
   document.getElementById('move').addEventListener('keypress', (e) => {
     if (e.key == 'Enter') {
-      moveCount = parseInt(document.getElementById('move').value);
+      moveCount = parseInt(document.getElementById('move').value)-1;
       loadHistoryMove();
       drawBoard();
     }
